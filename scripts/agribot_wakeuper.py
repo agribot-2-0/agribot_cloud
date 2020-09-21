@@ -13,6 +13,7 @@ CALLBACK_DONE = threading.Event()
 certificate_file = os.path.join(
     str(pathlib.Path.home()),
     "agribot-cd437-firebase-adminsdk-ypr8o-5e1109055d.json")
+#sms_api_pl_token = "AGRIBOT_CONFIGURE_LOCALLY"
 sms_api_pl_token = "AGRIBOT_CONFIGURE_LOCALLY"
 
 client = SmsApiPlClient(access_token=sms_api_pl_token)
@@ -27,14 +28,21 @@ def firebase_callback(doc_snapshot, changes, read_time):  # pylint: disable=unus
     for change in changes:
         if change.type.name == 'ADDED' or change.type.name == 'MODIFIED':
             actual_task_name = change.document.to_dict()['actual_task']
-            router_number = change.document.to_dict()['router_number']
-            print("{:<20}: {}".format("actual_task_name", actual_task_name))
-            print("{:<20}: {}".format("router_number", router_number))
-            task_ref = database.collection(u'robots').document(
-                change.document.id).collection(u'tasks').stream()
-            for task in task_ref:
-                if task.id == actual_task_name:
-                    agribot_program(router_number, task.to_dict())
+            if actual_task_name:
+                print("{:<100}".format("-" * 100))
+                router_number = change.document.to_dict()['router_number']
+                print("|{:<20} | {:<77}|".format(
+                    "date",
+                    datetime.datetime.now().strftime("%Y-%m-%d-%H:%M")))
+                print("|{:<20} | {:<77}|".format("actual_task_name",
+                                                 actual_task_name))
+                print("|{:<20} | {:<77}|".format("router_number",
+                                                 router_number))
+                task_ref = database.collection(u'robots').document(
+                    change.document.id).collection(u'tasks').stream()
+                for task in task_ref:
+                    if task.id == actual_task_name:
+                        agribot_program(router_number, task.to_dict())
 
     CALLBACK_DONE.set()
 
@@ -42,8 +50,8 @@ def firebase_callback(doc_snapshot, changes, read_time):  # pylint: disable=unus
 def send_sms(number, message_body):
     send_results = client.sms.send(to=number, message=message_body)
 
-    for result in send_results:
-        print(result.id, result.points, result.error)
+    print("|{:<100}|".format("SMS sent to {}, body {}".format(
+        number, message_body)))
 
 
 # http://stackoverflow.com/q/3844948/
@@ -73,8 +81,8 @@ def agribot_program(agribot_number, condtions_dict):
     else:
         message_body = '#'.join(message_body)
         message_body = 'config ' + message_body
-    print("{:<20}: {}".format("sms_body", message_body))
-    # send_sms(agribot_number, message_body)
+    # print("|{:<20} | {:<20}|".format("sms_body", message_body))
+    send_sms(agribot_number, message_body)
 
 
 def send_task_to_agribot(agribot_rsn):
