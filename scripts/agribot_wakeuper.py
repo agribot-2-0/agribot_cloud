@@ -1,9 +1,9 @@
-import firebase_admin
 import threading
 import datetime
 import time
 import os
 import pathlib
+import firebase_admin
 
 from smsapi.client import SmsApiPlClient
 from firebase_admin import firestore
@@ -13,10 +13,10 @@ CALLBACK_DONE = threading.Event()
 certificate_file = os.path.join(
     str(pathlib.Path.home()),
     "agribot-cd437-firebase-adminsdk-ypr8o-5e1109055d.json")
-#sms_api_pl_token = "AGRIBOT_CONFIGURE_LOCALLY"
-sms_api_pl_token = "AGRIBOT_CONFIGURE_LOCALLY"
+#SMS_API_PL_TOKEN = "AGRIBOT_CONFIGURE_LOCALLY"
+SMS_API_PL_TOKEN = "AGRIBOT_CONFIGURE_LOCALLY"
 
-client = SmsApiPlClient(access_token=sms_api_pl_token)
+client = SmsApiPlClient(access_token=SMS_API_PL_TOKEN)
 
 cred = firebase_admin.credentials.Certificate(certificate_file)
 firebase_admin.initialize_app(cred, {'projectID': 'agribot-cd437'})
@@ -48,22 +48,23 @@ def firebase_callback(doc_snapshot, changes, read_time):  # pylint: disable=unus
 
 
 def send_sms(number, message_body):
-    send_results = client.sms.send(to=number, message=message_body)
+    # client.sms.send(to=number, message=message_body)
 
-    print("|{:<100}|".format("SMS sent to {}, body {}".format(
+    print("|{:<100}|".format("SMS sent to: {}, body: {}".format(
         number, message_body)))
 
 
 # http://stackoverflow.com/q/3844948/
-def checkEqualIvo(lst):
+# Check is list is empty
+def check_equal_ivo(lst):
     return not lst or lst.count(lst[0]) == len(lst)
 
 
 def agribot_program(agribot_number, condtions_dict):
     keys = [
-        "wind_value", "wind_condition", "temp_value", "temp_condition",
-        "press_value", "press_condition", "humidity_value",
-        "humidity_condition", "start_time"
+        "wind_value", "wind_condition", "temperature_value",
+        "temperature_condition", "pressure_value", "pressure_condition",
+        "humidity_value", "humidity_condition", "start_time"
     ]
     message_body = []
     for key in keys:
@@ -74,14 +75,15 @@ def agribot_program(agribot_number, condtions_dict):
             else:
                 message_body.append(str(condtions_dict[key]))
         else:
-            message_body.append("*")
+            print("|{:<100}|".format(
+                "SMS not send. Task definition is incomplete."))
+            return
 
-    if checkEqualIvo(message_body):
+    if check_equal_ivo(message_body):
         message_body = "startnow"
     else:
         message_body = '#'.join(message_body)
         message_body = 'config ' + message_body
-    # print("|{:<20} | {:<20}|".format("sms_body", message_body))
     send_sms(agribot_number, message_body)
 
 
