@@ -5,14 +5,12 @@ from firebase_admin import firestore
 
 
 class Firestore:
-    database = None
-    send_sms = None
-
-    actual_task_listeners = {}
-
     def __init__(self, certificate_file, event):
         self.callback_done = event
         self.certificate_file = certificate_file
+        self.database = None
+        self.send_sms = None
+        self.actual_task_listeners = {}
         self.initialize()
 
     def initialize(self):
