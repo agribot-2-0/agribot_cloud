@@ -5,6 +5,9 @@ class AgribotWakeuper:
         "humidity_value", "humidity_condition", "start_time"
     ]
 
+    null_program_character = '*'
+    start_now_time = "2000-01-01-12:00"
+
     def __init__(self, firestore, sms_api):
         self.firestore = firestore
         self.sms_api = sms_api
@@ -14,9 +17,9 @@ class AgribotWakeuper:
             self.agribot_program_function)
 
     # http://stackoverflow.com/q/3844948/
-    # Check if list is empty
+    # Check if all elements are the same
     @staticmethod
-    def check_equal_ivo(lst):
+    def check_equal_elements(lst):
         return not lst or lst.count(lst[0]) == len(lst)
 
     def agribot_program_function(self, agribot_number, condtions_dict):
@@ -26,7 +29,7 @@ class AgribotWakeuper:
             if key in condtions_dict:
                 if key == "start_time":
                     message_body.append(
-                        str(condtions_dict[key].strftime("%Y-%m-%d-%H:%M")))
+                        self.time_to_string(condtions_dict[key]))
                 else:
                     message_body.append(str(condtions_dict[key]))
             else:
@@ -34,9 +37,16 @@ class AgribotWakeuper:
                     "SMS not send. Task definition is incomplete."))
                 return
 
-        if self.check_equal_ivo(message_body):
+        if self.check_equal_elements(message_body):
             message_body = "startnow"
         else:
             message_body = '#'.join(message_body)
             message_body = 'config ' + message_body
         self.sms_api.send_sms(agribot_number, message_body)
+
+    def time_to_string(self, time):
+        start_time_str = time.strftime("%Y-%m-%d-%H:%M")
+        if start_time_str == self.start_now_time:
+            start_time_str = self.null_program_character
+
+        return start_time_str
