@@ -1,0 +1,17 @@
+image: docker:18-git
+
+pipelines:
+  default:
+     - step:
+         name: "Check pylint"
+         script:
+           - apk add --update bash coreutils gcc python3-dev py3-pip musl-dev
+           - pip3 install setuptools
+           - pip3 install pylint
+           - git clone https://github.com/panpawelchmiel/agribot_common.git
+           - pylint --rcfile=agribot_common/pylint_conf/.pylintrc scripts/*
+
+definitions:
+  services:
+    docker:
+      memory: 2048
