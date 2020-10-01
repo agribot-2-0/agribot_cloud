@@ -1,0 +1,8 @@
+version: '3'
+services:
+  agribot_cloud:
+    build: .
+    command: python agribot_cloud_run.py
+    volumes:
+      - ../scripts:/code
+      - ../firebase_key:/firebase_key
