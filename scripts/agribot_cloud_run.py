@@ -19,8 +19,15 @@ agribot_scheduler = agribot_cloud.AgribotScheduler(agribot_firestore, event)
 agribot_wakeuper = agribot_cloud.AgribotWakeuper(agribot_firestore, sms_api,
                                                  event)
 
-agribot_scheduler.run()
-agribot_wakeuper.run()
+w = agribot_cloud.Weather()
+w.request_current_conditions_data()
+print("{} C".format(w.get_temperature()))
+print("{} %".format(w.get_relative_humidity()))
+print("{} km/h".format(w.get_wind_value()))
+print("{} deg".format(w.get_wind_direction()))
+print("{} hPa".format(w.get_pressure()))
+# agribot_scheduler.run()
+# agribot_wakeuper.run()
 
-while True:
-    time.sleep(0.01)
+# while True:
+#     time.sleep(0.01)
