@@ -8,9 +8,9 @@ class AgribotScheduler:
         self.callback_done = event
         self.agribot_firestore = agribot_firestore
         self.tasks_highest = ""
-        t = threading.Thread(target=self.check_highest_task_time)
-        t.daemon = True  # stop if the program exits
-        t.start()
+        loop_thread = threading.Thread(target=self.check_highest_task_time)
+        loop_thread.daemon = True  # stop if the program exits
+        loop_thread.start()
 
     def check_highest_task_time(self):
         while True:

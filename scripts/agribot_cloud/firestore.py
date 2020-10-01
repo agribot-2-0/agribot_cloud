@@ -58,7 +58,7 @@ class Firestore:
             u'tasks').document(task_name).delete()
 
     def sort_tasks(self, robot_rsn):
-        return self.get_tasks_query("robot_rsn").order_by(u'start_time')
+        return self.get_tasks_query(robot_rsn).order_by(u'start_time')
 
     def update_tasks_ordered(self, robot_rsn, tasks):
         tasks_array = []
