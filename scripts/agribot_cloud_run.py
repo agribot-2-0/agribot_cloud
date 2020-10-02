@@ -15,7 +15,7 @@ if __name__ == "__main__":
     sms_api = agribot_cloud.SmsApi(SMS_API_PL_TOKEN)
     agribot_firestore = agribot_cloud.Firestore(certificate_file)
 
-    fileConfig('logging_config.conf')
+    fileConfig('/configs/logging_config.conf')
     logger = logging.getLogger()
 
     event = threading.Event()

@@ -8,8 +8,7 @@ pipelines:
            - apk add --update bash coreutils gcc python3-dev py3-pip musl-dev
            - pip3 install setuptools
            - pip3 install pylint
-           - git clone https://github.com/panpawelchmiel/agribot_common.git
-           - pylint --rcfile=agribot_common/pylint_conf/.pylintrc scripts/*
+           - pylint --rcfile=.pylintrc scripts/*
 
 definitions:
   services:

@@ -6,3 +6,4 @@ services:
     volumes:
       - ../scripts:/code
       - ../firebase_key:/firebase_key
+      - ../configs:/configs
