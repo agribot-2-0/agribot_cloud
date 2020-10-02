@@ -11,7 +11,8 @@ class AgribotWakeuper:
     null_program_character = '*'
     start_now_time = "2000-01-01-12:00"
 
-    def __init__(self, firestore, sms_api, event):
+    def __init__(self, firestore, sms_api, event, logger):
+        self.logger = logger
         self.callback_done = event
         self.agribot_firestore = firestore
         self.sms_api = sms_api
@@ -43,7 +44,7 @@ class AgribotWakeuper:
                 else:
                     message_body.append(str(condtions_dict[key]))
             else:
-                print("|{:<100}|".format(
+                self.logger.info("|{:<100}|".format(
                     "SMS not send. Task definition is incomplete."))
                 return
 
@@ -55,7 +56,7 @@ class AgribotWakeuper:
         self.sms_api.send_sms(agribot_number, message_body)
 
     def actual_task_callback(self, doc_snapshot, changes, read_time):  # pylint: disable=unused-argument,no-self-use
-        print("Wakeuper robot change")
+        self.logger.info("Wakeuper robot change")
         robot_rsn = doc_snapshot[0].id
         # for change in changes:
         #     if change.type.name == 'ADDED' or change.type.name == 'MODIFIED':
@@ -78,11 +79,12 @@ class AgribotWakeuper:
 
         return start_time_str
 
-    @staticmethod
-    def print_log(actual_task_name, router_number):
-        print("{:<100}".format("-" * 100))
-        print("|{:<20} | {:<77}|".format(
+    def print_log(self, actual_task_name, router_number):
+        self.logger.info("{:<100}".format("-" * 100))
+        self.logger.info("|{:<20} | {:<77}|".format(
             "date",
             datetime.datetime.now().strftime("%Y-%m-%d-%H:%M")))
-        print("|{:<20} | {:<77}|".format("actual_task_name", actual_task_name))
-        print("|{:<20} | {:<77}|".format("router_number", router_number))
+        self.logger.info("|{:<20} | {:<77}|".format("actual_task_name",
+                                                    actual_task_name))
+        self.logger.info("|{:<20} | {:<77}|".format("router_number",
+                                                    router_number))
