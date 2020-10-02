@@ -1,10 +1,12 @@
+import os
 import firebase_admin
 from firebase_admin import firestore
 
 
 class Firestore:
-    def __init__(self, certificate_file):
-        self.certificate_file = certificate_file
+    def __init__(self, config):
+        self.certificate_file = self.get_certificate_file_path(
+            config['certificate_location'], config['certificate_file'])
         self.database = None
         self.send_sms = None
         self.initialize()
@@ -13,6 +15,10 @@ class Firestore:
         cred = firebase_admin.credentials.Certificate(self.certificate_file)
         firebase_admin.initialize_app(cred, {'projectID': 'agribot-cd437'})
         self.database = firestore.client()
+
+    @staticmethod
+    def get_certificate_file_path(file_location, file_name):
+        return os.path.join(file_location, file_name)
 
     def register_on_tasks_change_callback(self, robot_rsn, on_tasks_callback):
         return self.database.collection(u'robots').document(

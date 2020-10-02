@@ -1,4 +1,3 @@
-import os
 import time
 import threading
 import logging
@@ -6,11 +5,6 @@ from logging.config import fileConfig
 import yaml
 
 import agribot_cloud
-
-
-def get_certificate_file_path(file):
-    return os.path.join("/firebase_key", file)
-
 
 if __name__ == "__main__":
     fileConfig('/configs/logging.conf')
@@ -22,8 +16,7 @@ if __name__ == "__main__":
 
     firebase_config = yaml.load(open("/configs/firebase.yaml"),
                                 Loader=yaml.FullLoader)
-    agribot_firestore = agribot_cloud.Firestore(
-        get_certificate_file_path(firebase_config['certificate_file']))
+    agribot_firestore = agribot_cloud.Firestore(firebase_config)
 
     event = threading.Event()
     agribot_scheduler = agribot_cloud.AgribotScheduler(agribot_firestore,
