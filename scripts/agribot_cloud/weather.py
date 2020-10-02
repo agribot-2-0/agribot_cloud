@@ -3,10 +3,11 @@ import urllib.request
 
 
 class Weather:
-    def __init__(self):
-        self.location_id = "2-273125_1_AL"
-        self.api = "AGRIBOT_CONFIGURE_LOCALLY"
+    def __init__(self, config, logger):
+        self.location_id = config['location_id']
+        self.api = config['api_token']
         self.data = ""
+        self.logger = logger
 
     def request_current_conditions_data(self):
         base_url = "http://dataservice.accuweather.com/currentconditions/v1"
@@ -15,9 +16,13 @@ class Weather:
     def request_data(self, base_url):
         url = "{}/{}?apikey={}&details=true".format(base_url, self.location_id,
                                                     self.api)
-        with urllib.request.urlopen(url) as url:
-            self.data = json.loads(url.read().decode())
-        # print(self.data)
+        try:
+            with urllib.request.urlopen(url) as url:
+                self.data = json.loads(url.read().decode())
+            return True
+        except urllib.error.HTTPError as error:
+            self.logger.error(error)
+            return False
 
     def get_temperature(self):
         return self.data[0]["Temperature"]["Metric"]["Value"]
