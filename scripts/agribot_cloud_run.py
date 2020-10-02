@@ -2,21 +2,28 @@ import os
 import time
 import threading
 import logging
+import yaml
 from logging.config import fileConfig
 
 import agribot_cloud
 
-# SMS_API_PL_TOKEN = "AGRIBOT_CONFIGURE_LOCALLY"
-SMS_API_PL_TOKEN = "AGRIBOT_CONFIGURE_LOCALLY"
-certificate_file = os.path.join(
-    "/firebase_key", "agribot-cd437-firebase-adminsdk-ypr8o-5e1109055d.json")
+
+def get_certificate_file_path(file):
+    return os.path.join("/firebase_key", file)
+
 
 if __name__ == "__main__":
-    sms_api = agribot_cloud.SmsApi(SMS_API_PL_TOKEN)
-    agribot_firestore = agribot_cloud.Firestore(certificate_file)
-
-    fileConfig('/configs/logging_config.conf')
+    fileConfig('/configs/logging.conf')
     logger = logging.getLogger()
+
+    sms_api_config = yaml.load(open("/configs/sms_api_pl.yaml"),
+                               Loader=yaml.FullLoader)
+    sms_api = agribot_cloud.SmsApi(sms_api_config['sms_api_pl_token'])
+
+    firebase_config = yaml.load(open("/configs/firebase.yaml"),
+                                Loader=yaml.FullLoader)
+    agribot_firestore = agribot_cloud.Firestore(
+        get_certificate_file_path(firebase_config['certificate_file']))
 
     event = threading.Event()
     agribot_scheduler = agribot_cloud.AgribotScheduler(agribot_firestore,
@@ -34,5 +41,5 @@ if __name__ == "__main__":
     # agribot_scheduler.run()
     # agribot_wakeuper.run()
 
-    while True:
-        time.sleep(0.01)
+    # while True:
+    #     time.sleep(0.01)
