@@ -33,11 +33,9 @@ class Firestore:
 
     def get_tasks_stream(self, robot_rsn, order_by=None):
         if order_by is not None:
-            return self.database.collection(u'robots').document(
-                robot_rsn).collection(u'tasks').order_by(order_by).stream()
+            return self.get_tasks_query(robot_rsn).order_by(order_by).stream()
         else:
-            return self.database.collection(u'robots').document(
-                robot_rsn).collection(u'tasks').stream()
+            return self.get_tasks_query(robot_rsn).stream()
 
     def get_tasks_query(self, robot_rsn):
         return self.database.collection(u'robots').document(
@@ -77,3 +75,7 @@ class Firestore:
     def update_actual_task(self, robot_rsn, actual_task_name):
         self.database.collection(u'robots').document(robot_rsn).update(
             {u'actual_task': actual_task_name})
+
+    def update_start_time(self, robot_rsn, task_id, start_time):
+        self.database.collection(u'robots').document(robot_rsn).collection(
+            u'tasks').document(task_id).update({u'start_time': start_time})

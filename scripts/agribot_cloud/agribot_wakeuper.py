@@ -1,6 +1,3 @@
-import datetime
-
-
 class AgribotWakeuper:
     task_keys = [
         "wind_value", "wind_condition", "temperature_value",
@@ -17,15 +14,12 @@ class AgribotWakeuper:
         self.agribot_firestore = firestore
         self.sms_api = sms_api
         self.actual_task_listeners = {}
+        self.robot_rsn = ""
 
-    def run(self):
-        for robot in self.agribot_firestore.get_robots_stream():
-            # actual_task_ref = self.agribot_firestore.database.collection(
-            #     u'robots').document(robot.id)
-            self.actual_task_listeners[
-                robot.
-                id] = self.agribot_firestore.register_on_robot_change_callback(
-                    robot.id, self.actual_task_callback)
+    def run(self, robot_rsn):
+        self.robot_rsn = robot_rsn
+        self.agribot_firestore.register_on_robot_change_callback(
+            robot_rsn, self.actual_task_callback)
 
     # http://stackoverflow.com/q/3844948/
     # Check if all elements are the same
@@ -44,7 +38,7 @@ class AgribotWakeuper:
                 else:
                     message_body.append(str(condtions_dict[key]))
             else:
-                self.logger.info("|{:<100}|".format(
+                self.logger.info("{:<100}".format(
                     "SMS not send. Task definition is incomplete."))
                 return
 
@@ -57,13 +51,12 @@ class AgribotWakeuper:
 
     def actual_task_callback(self, doc_snapshot, changes, read_time):  # pylint: disable=unused-argument,no-self-use
         self.logger.info("Wakeuper robot change")
-        robot_rsn = doc_snapshot[0].id
-        # for change in changes:
-        #     if change.type.name == 'ADDED' or change.type.name == 'MODIFIED':
-        actual_task_name = self.agribot_firestore.get_actual_task(robot_rsn)
+        actual_task_name = self.agribot_firestore.get_actual_task(
+            self.robot_rsn)
         if actual_task_name:
-            router_number = self.agribot_firestore.get_router_number(robot_rsn)
-            tasks_ref = self.agribot_firestore.get_tasks_stream(robot_rsn)
+            router_number = self.agribot_firestore.get_router_number(
+                self.robot_rsn)
+            tasks_ref = self.agribot_firestore.get_tasks_stream(self.robot_rsn)
             for task in tasks_ref:
                 if task.id == actual_task_name:
                     self.print_log(actual_task_name, router_number)
@@ -80,11 +73,5 @@ class AgribotWakeuper:
         return start_time_str
 
     def print_log(self, actual_task_name, router_number):
-        self.logger.info("{:<100}".format("-" * 100))
-        self.logger.info("|{:<20} | {:<77}|".format(
-            "date",
-            datetime.datetime.now().strftime("%Y-%m-%d-%H:%M")))
-        self.logger.info("|{:<20} | {:<77}|".format("actual_task_name",
-                                                    actual_task_name))
-        self.logger.info("|{:<20} | {:<77}|".format("router_number",
-                                                    router_number))
+        self.logger.info("Actual task is {}, send it to {}".format(
+            actual_task_name, router_number))

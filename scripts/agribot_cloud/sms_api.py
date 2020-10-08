@@ -13,5 +13,5 @@ class SmsApi:  # pylint: disable=too-few-public-methods
         else:
             self.client.sms.send(to=number, message=message_body)
 
-        self.logger.info("|{:<100}|".format("SMS sent to: {}| body: {}".format(
-            number, message_body)))
+        self.logger.info("{:<100}".format(
+            "SMS sent to: {} with body: {}".format(number, message_body)))
