@@ -56,22 +56,20 @@ class AgribotScheduler:
             agribot_rsn, self.on_robot_change_callback)
 
     def on_tasks_change_callback(self, doc_snapshot, changes, read_time):  # pylint: disable=unused-argument,no-self-use
-        # Estimate time for tasks
+        # Estimate time for weather tasks
         for change in changes:
             if change.type.name == 'ADDED' or change.type.name == "MODIFIED":
                 self.update_estimated_time(self.robot_rsn, change.document)
 
-        # update tasks ordered field
+        # Update tasks ordered field
         self.update_tasks_order()
 
         self.callback_done.set()
 
     def on_robot_change_callback(self, doc_snapshot, changes, read_time):  # pylint: disable=unused-argument,no-self-use
         self.logger.info("Scheduler robot change")
-        actual_task_name = self.agribot_firestore.get_actual_task(
-            self.robot_rsn)
-        tasks_ordered = self.agribot_firestore.get_tasks_ordered(
-            self.robot_rsn)
+        actual_task_name = doc_snapshot[0].to_dict()['actual_task']
+        tasks_ordered = doc_snapshot[0].to_dict()['tasks_ordered']
 
         # Set first task in tasks_ordered as actual_task
         if tasks_ordered:
@@ -81,9 +79,6 @@ class AgribotScheduler:
         else:
             self.tasks_highest = ""
 
-        # if actual_task_name == "":
-        #     print("Task is empty")
-        #     self.agribot_firestore.delete_task(robot_rsn, self.tasks_highest)
         self.logger.info("actual_task_name is {}".format(actual_task_name))
         self.callback_done.set()
 

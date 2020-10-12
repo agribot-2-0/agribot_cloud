@@ -55,6 +55,21 @@ class Weather:
             )] = table_element[element_name]["Value"]
         return forecast_dict
 
+    def get_temperature(self):
+        return self.data[0]["Temperature"]["Metric"]["Value"]
+
+    def get_relative_humidity(self):
+        return self.data[0]["RelativeHumidity"]
+
+    def get_wind_direction(self):
+        return self.data[0]["Wind"]["Direction"]["Degrees"]
+
+    def get_wind_value(self):
+        return self.data[0]["Wind"]["Speed"]["Metric"]["Value"]
+
+    def get_pressure(self):
+        return self.data[0]["Pressure"]["Metric"]["Value"]
+
     @staticmethod
     def if_weather_condition_fullfiled(forecast, condition, value_str):
         value = float(value_str)
@@ -71,18 +86,3 @@ class Weather:
     def str_to_time(date_str, date_format="%Y-%m-%dT%H%M%S%z"):
         return datetime.datetime.strptime(date_str.replace(":", ""),
                                           date_format)
-
-    def get_temperature(self):
-        return self.data[0]["Temperature"]["Metric"]["Value"]
-
-    def get_relative_humidity(self):
-        return self.data[0]["RelativeHumidity"]
-
-    def get_wind_direction(self):
-        return self.data[0]["Wind"]["Direction"]["Degrees"]
-
-    def get_wind_value(self):
-        return self.data[0]["Wind"]["Speed"]["Metric"]["Value"]
-
-    def get_pressure(self):
-        return self.data[0]["Pressure"]["Metric"]["Value"]
