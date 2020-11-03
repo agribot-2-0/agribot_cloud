@@ -87,16 +87,16 @@ class AgribotScheduler:
                                                         order_by="start_time")
         self.agribot_firestore.update_tasks_ordered(self.robot_rsn, tasks)
 
-    def update_estimated_time(self, robot_rsn, task_name):
-        if task_name.to_dict()['start_time_estimated'] is True:
-            estimated_time = self.estimate_start_time(task_name)
+    def update_estimated_time(self, robot_rsn, task_document):
+        if task_document.to_dict()['start_time_estimated'] is True:
+            estimated_time = self.estimate_start_time(task_document)
             if estimated_time is not None:
                 self.agribot_firestore.update_start_time(
-                    robot_rsn, task_name.id, estimated_time)
+                    robot_rsn, task_document.id, estimated_time)
                 self.logger.info("Task {} estimated time is {}".format(
-                    task_name.id, estimated_time))
+                    task_document.id, estimated_time))
 
-    def estimate_start_time(self, task_name):
+    def estimate_start_time(self, task_document):
         weather_parameters = {
             "temperature": self.weather_forecast.get_forecast_temperature(),
             "humidity": self.weather_forecast.get_forecast_humidity(),
@@ -110,8 +110,8 @@ class AgribotScheduler:
             value_key = "{}_{}".format(firebase_param, "value")
             cond_key = "{}_{}".format(firebase_param, "condition")
 
-            value = task_name.to_dict()[value_key]
-            cond = task_name.to_dict()[cond_key]
+            value = task_document.to_dict()[value_key]
+            cond = task_document.to_dict()[cond_key]
 
             if value != "*" and cond != "*":
                 forecast_filtered = self.weather_forecast.if_weather_condition_fullfiled(

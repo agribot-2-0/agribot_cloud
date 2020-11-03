@@ -21,12 +21,12 @@ class Firestore:
         return os.path.join(file_location, file_name)
 
     def register_on_tasks_change_callback(self, robot_rsn, on_tasks_callback):
-        return self.database.collection(u'robots').document(
-            robot_rsn).collection(u'tasks').on_snapshot(on_tasks_callback)
+        return self.get_robot_document(robot_rsn).collection(
+            u'tasks').on_snapshot(on_tasks_callback)
 
     def register_on_robot_change_callback(self, robot_rsn, on_tasks_callback):
-        return self.database.collection(u'robots').document(
-            robot_rsn).on_snapshot(on_tasks_callback)
+        return self.get_robot_document(robot_rsn).on_snapshot(
+            on_tasks_callback)
 
     def get_robots_stream(self):
         return self.database.collection(u'robots').stream()
@@ -37,29 +37,31 @@ class Firestore:
         else:
             return self.get_tasks_query(robot_rsn).stream()
 
+    def get_robot_document(self, robot_rsn):
+        return self.database.collection(u'robots').document(robot_rsn)
+
     def get_tasks_query(self, robot_rsn):
-        return self.database.collection(u'robots').document(
-            robot_rsn).collection(u'tasks')
+        return self.get_robot_document(robot_rsn).collection(u'tasks')
 
     def get_actual_task(self, robot_rsn):
-        return self.database.collection(u'robots').document(
+        return self.get_robot_document(
             robot_rsn).get().to_dict()[u'actual_task']
 
     def get_router_number(self, robot_rsn):
-        return self.database.collection(u'robots').document(
+        return self.get_robot_document(
             robot_rsn).get().to_dict()[u'router_number']
 
     def get_tasks_ordered(self, robot_rsn):
-        return self.database.collection(u'robots').document(
+        return self.get_robot_document(
             robot_rsn).get().to_dict()[u'tasks_ordered']
 
     def get_task(self, robot_rsn, task_name):
-        return self.database.collection(u'robots').document(
-            robot_rsn).collection(u'tasks').document(task_name).get()
+        return self.get_robot_document(robot_rsn).collection(
+            u'tasks').document(task_name).get()
 
     def delete_task(self, robot_rsn, task_name):
-        self.database.collection(u'robots').document(robot_rsn).collection(
-            u'tasks').document(task_name).delete()
+        self.get_robot_document(robot_rsn).collection(u'tasks').document(
+            task_name).delete()
 
     def sort_tasks(self, robot_rsn):
         return self.get_tasks_query(robot_rsn).order_by(u'start_time')
@@ -69,13 +71,13 @@ class Firestore:
         for task in tasks:
             tasks_array.append(task.id)
 
-        self.database.collection(u'robots').document(robot_rsn).update(
+        self.get_robot_document(robot_rsn).update(
             {u'tasks_ordered': tasks_array})
 
     def update_actual_task(self, robot_rsn, actual_task_name):
-        self.database.collection(u'robots').document(robot_rsn).update(
+        self.get_robot_document(robot_rsn).update(
             {u'actual_task': actual_task_name})
 
     def update_start_time(self, robot_rsn, task_id, start_time):
-        self.database.collection(u'robots').document(robot_rsn).collection(
-            u'tasks').document(task_id).update({u'start_time': start_time})
+        self.get_robot_document(robot_rsn).collection(u'tasks').document(
+            task_id).update({u'start_time': start_time})
