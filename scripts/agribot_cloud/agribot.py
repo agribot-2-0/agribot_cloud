@@ -34,7 +34,11 @@ class AgribotCloud:
         weather_forecast = Weather(weather_config, self.logger)
 
         event = threading.Event()
-        self.agribot_scheduler = AgribotScheduler(agribot_firestore,
+        scheduler_config = yaml.load(open(
+            os.path.join(configs_location, 'agribot_scheduler.yaml')),
+                                     Loader=yaml.FullLoader)
+        self.agribot_scheduler = AgribotScheduler(scheduler_config,
+                                                  agribot_firestore,
                                                   weather_forecast, event,
                                                   self.logger)
         self.agribot_wakeuper = AgribotWakeuper(agribot_firestore, sms_api,

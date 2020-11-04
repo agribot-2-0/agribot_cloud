@@ -4,12 +4,14 @@ import threading
 
 
 class AgribotScheduler:
-    # pylint: disable=too-many-instance-attributes
-    def __init__(self, agribot_firestore, weather_forecast, event, logger):
+    # pylint: disable=too-many-instance-attributes, too-many-arguments
+    def __init__(self, config, agribot_firestore, weather_forecast, event,
+                 logger):
         self.logger = logger
         self.callback_done = event
         self.weather_forecast = weather_forecast
         self.agribot_firestore = agribot_firestore
+        self.config = config
         self.tasks_highest = ""
 
         self.check_highest_task_time_loop = threading.Thread(
@@ -32,7 +34,10 @@ class AgribotScheduler:
                         "Highest task is {} with start time {}, actual time is {}"
                         .format(self.tasks_highest, start_time,
                                 self.get_time_now()))
-                    if self.get_time_now(offset_hours=-1) > start_time:
+                    if self.get_time_now(
+                            offset_hours=self.config["offset_hours"],
+                            offset_minutes=self.config["offset_minutes"]
+                    ) > start_time:
                         self.agribot_firestore.update_actual_task(
                             self.robot_rsn, self.tasks_highest)
             time.sleep(sleep_time - time.time() % sleep_time)
