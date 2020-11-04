@@ -1,8 +1,9 @@
 version: '3'
 services:
-  agribot_cloud:
+  agribot_cloud_adi75r1:
     build: .
-    command: python agribot_cloud_run.py
+    command: python agribot_cloud_run.py ADI75R1
     volumes:
       - ../scripts:/code
       - ../firebase_key:/firebase_key
+      - ../configs:/configs
